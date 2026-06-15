@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>梅花易數 · 股票卜卦</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;600&family=Inter:wght@300;400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+–bg: #0f0f12;
+–surface: #18181f;
+–border: #2a2a36;
+–accent: #c8a96e;
+–accent-dim: rgba(200,169,110,0.12);
+–text: #e8e4dc;
+–muted: #6b6880;
+–good: #6ec8a9;
+–bad: #c86e6e;
+–neutral: #6e9bc8;
+}
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘Inter’, ‘Noto Serif TC’, sans-serif;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 40px 16px 80px;
+}
+
+header {
+text-align: center;
+margin-bottom: 48px;
+}
+
+.logo-char {
+font-family: ‘Noto Serif TC’, serif;
+font-size: 48px;
+font-weight: 300;
+color: var(–accent);
+letter-spacing: 0.1em;
+line-height: 1;
+margin-bottom: 12px;
+display: block;
+}
+
+h1 {
+font-family: ‘Noto Serif TC’, serif;
+font-size: 15px;
+font-weight: 300;
+color: var(–muted);
+letter-spacing: 0.3em;
+}
+
+.card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 32px;
+width: 100%;
+max-width: 480px;
+margin-bottom: 24px;
+}
+
+.card-title {
+font-size: 11px;
+font-weight: 500;
+letter-spacing: 0.2em;
+color: var(–muted);
+text-transform: uppercase;
+margin-bottom: 20px;
+}
+
+.field-group {
+display: flex;
+gap: 12px;
+margin-bottom: 16px;
+}
+
+.field {
+flex: 1;
+display: flex;
+flex-direction: column;
+gap: 6px;
+}
+
+label {
+font-size: 12px;
+color: var(–muted);
+letter-spacing: 0.05em;
+}
+
+input {
+background: var(–bg);
+border: 1px solid var(–border);
+border-radius: 8px;
+padding: 10px 14px;
+color: var(–text);
+font-size: 15px;
+font-family: ‘Inter’, sans-serif;
+transition: border-color 0.2s;
+width: 100%;
+}
+
+input:focus {
+outline: none;
+border-color: var(–accent);
+}
+
+.hint {
+font-size: 11px;
+color: var(–muted);
+margin-top: -10px;
+margin-bottom: 20px;
+}
+
+/* 個人數字區 */
+.personal-num-area {
+margin-bottom: 20px;
+}
+
+.personal-num-label {
+font-size: 12px;
+color: var(–muted);
+letter-spacing: 0.05em;
+margin-bottom: 8px;
+display: block;
+}
+
+.personal-num-row {
+display: flex;
+gap: 10px;
+align-items: center;
+}
+
+.num-slots {
+display: flex;
+gap: 6px;
+flex-wrap: wrap;
+}
+
+.num-slot {
+width: 36px;
+height: 36px;
+border: 1px solid var(–border);
+border-radius: 8px;
+background: var(–bg);
+color: var(–muted);
+font-size: 14px;
+font-family: ‘Inter’, sans-serif;
+cursor: pointer;
+transition: all 0.15s;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.num-slot:hover {
+border-color: var(–accent);
+color: var(–accent);
+}
+
+.num-slot.selected {
+background: var(–accent);
+border-color: var(–accent);
+color: #0f0f12;
+font-weight: 600;
+}
+
+.dice-btn {
+padding: 8px 14px;
+background: transparent;
+border: 1px solid var(–border);
+border-radius: 8px;
+color: var(–muted);
+font-size: 18px;
+cursor: pointer;
+transition: all 0.2s;
+white-space: nowrap;
+flex-shrink: 0;
+}
+
+.dice-btn:hover {
+border-color: var(–accent);
+color: var(–accent);
+}
+
+.dice-btn.rolling {
+animation: spin 0.4s ease;
+}
+
+@keyframes spin {
+0% { transform: rotate(0deg) scale(1); }
+50% { transform: rotate(180deg) scale(1.2); }
+100% { transform: rotate(360deg) scale(1); }
+}
+
+.personal-hint {
+font-size: 11px;
+color: var(–muted);
+margin-top: 8px;
+line-height: 1.6;
+}
+
+.btn {
+width: 100%;
+padding: 13px;
+background: var(–accent);
+color: #0f0f12;
+border: none;
+border-radius: 10px;
+font-size: 14px;
+font-weight: 500;
+letter-spacing: 0.1em;
+cursor: pointer;
+transition: opacity 0.2s;
+font-family: ‘Noto Serif TC’, serif;
+}
+
+.btn:hover { opacity: 0.85; }
+
+/* Result area */
+#result { display: none; width: 100%; max-width: 480px; }
+
+.calc-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 10px 0;
+border-bottom: 1px solid var(–border);
+font-size: 13px;
+}
+.calc-row:last-child { border-bottom: none; }
+.calc-label { color: var(–muted); }
+.calc-val { color: var(–accent); font-weight: 500; font-family: ‘Inter’, monospace; }
+
+.hexagram-display {
+display: flex;
+gap: 24px;
+margin: 24px 0;
+}
+
+.hex-box {
+flex: 1;
+background: var(–accent-dim);
+border: 1px solid var(–accent);
+border-radius: 12px;
+padding: 20px 16px;
+text-align: center;
+}
+
+.hex-box.change {
+border-color: var(–border);
+background: transparent;
+}
+
+.hex-label {
+font-size: 10px;
+letter-spacing: 0.2em;
+color: var(–muted);
+margin-bottom: 10px;
+}
+
+.hex-lines {
+display: flex;
+flex-direction: column-reverse;
+gap: 5px;
+margin-bottom: 12px;
+align-items: center;
+}
+
+.yao {
+height: 5px;
+border-radius: 2px;
+background: var(–accent);
+}
+
+.hex-box.change .yao { background: var(–muted); }
+
+.yao.yang { width: 48px; }
+.yao.yin-left { width: 20px; }
+.yao.yin-right { width: 20px; margin-left: 8px; }
+
+.yao-pair { display: flex; gap: 8px; }
+
+.hex-name {
+font-family: ‘Noto Serif TC’, serif;
+font-size: 18px;
+font-weight: 600;
+color: var(–text);
+}
+
+.hex-box.change .hex-name { font-size: 15px; color: var(–muted); }
+
+.hex-sub {
+font-size: 11px;
+color: var(–muted);
+margin-top: 4px;
+}
+
+.moving-yao-badge {
+display: inline-block;
+background: var(–accent-dim);
+border: 1px solid var(–accent);
+color: var(–accent);
+font-size: 11px;
+padding: 3px 10px;
+border-radius: 20px;
+margin: 0 auto 20px;
+letter-spacing: 0.1em;
+}
+
+.yao-text-box {
+background: var(–bg);
+border-radius: 10px;
+padding: 16px;
+margin-bottom: 16px;
+}
+
+.yao-text-title {
+font-size: 11px;
+color: var(–muted);
+letter-spacing: 0.15em;
+margin-bottom: 6px;
+}
+
+.yao-text-content {
+font-family: ‘Noto Serif TC’, serif;
+font-size: 14px;
+color: var(–accent);
+line-height: 1.7;
+}
+
+.verdict {
+border-radius: 12px;
+padding: 20px;
+margin-top: 8px;
+}
+
+.verdict.up { background: rgba(110,200,169,0.1); border: 1px solid var(–good); }
+.verdict.down { background: rgba(200,110,110,0.1); border: 1px solid var(–bad); }
+.verdict.neutral { background: rgba(110,155,200,0.1); border: 1px solid var(–neutral); }
+
+.verdict-icon { font-size: 28px; margin-bottom: 8px; }
+
+.verdict-title {
+font-family: ‘Noto Serif TC’, serif;
+font-size: 20px;
+font-weight: 600;
+margin-bottom: 8px;
+}
+
+.verdict.up .verdict-title { color: var(–good); }
+.verdict.down .verdict-title { color: var(–bad); }
+.verdict.neutral .verdict-title { color: var(–neutral); }
+
+.verdict-desc {
+font-size: 13px;
+color: var(–muted);
+line-height: 1.7;
+}
+
+.arrow { margin: 0 8px; color: var(–muted); font-size: 12px; }
+
+.disclaimer {
+font-size: 11px;
+color: var(–muted);
+text-align: center;
+margin-top: 24px;
+line-height: 1.8;
+opacity: 0.6;
+}
+</style>
+
+</head>
+<body>
+
+<header>
+<span class="logo-char">梅</span>
+<h1>梅花易數 · 股票卜卦</h1>
+</header>
+
+<div class="card">
+<div class="card-title">輸入資訊</div>
+
+<div class="field-group">
+<div class="field">
+<label>股票 / ETF 代碼</label>
+<input type="text" id="stockCode" placeholder="例：00981" maxlength="10">
+</div>
+</div>
+<div class="hint">數字部分將自動拆成各位數相加（如 981 → 9+8+1）</div>
+
+<div class="field-group">
+<div class="field">
+<label>月份</label>
+<input type="number" id="month" min="1" max="12" placeholder="月">
+</div>
+<div class="field">
+<label>日期</label>
+<input type="number" id="day" min="1" max="31" placeholder="日">
+</div>
+</div>
+
+<div class="personal-num-area">
+<span class="personal-num-label">個人數字（1–10）</span>
+<div class="personal-num-row">
+<div class="num-slots" id="numSlots"></div>
+<button class="dice-btn" id="diceBtn" onclick="rollDice()" title="靜心後搖骰">🎲</button>
+</div>
+<div class="personal-hint">靜心默念所問之事，再點骰子隨機取數，或直接點選。</div>
+</div>
+
+<button class="btn" onclick="divinate()">起 卦</button>
+
+</div>
+
+<div id="result">
+<div class="card">
+<div class="card-title">卦象</div>
+<div class="hexagram-display" id="hexDisplay"></div>
+<div style="text-align:center">
+<div class="moving-yao-badge" id="movingBadge"></div>
+</div>
+<div class="yao-text-box">
+<div class="yao-text-title">動爻爻辭</div>
+<div class="yao-text-content" id="yaoCi"></div>
+</div>
+<div class="verdict" id="verdictBox">
+<div class="verdict-icon" id="verdictIcon"></div>
+<div class="verdict-title" id="verdictTitle"></div>
+<div class="verdict-desc" id="verdictDesc"></div>
+</div>
+</div>
+
+<div class="disclaimer">
+易數僅供參考，不構成投資建議<br>
+請搭配技術分析自行判斷
+</div>
+</div>
+
+<script>
+// ── 八卦資料 ──
+const TRIGRAMS = {
+1: { name:'乾', symbol:'☰', lines:[1,1,1], element:'天' },
+2: { name:'兌', symbol:'☱', lines:[1,1,0], element:'澤' },
+3: { name:'離', symbol:'☲', lines:[1,0,1], element:'火' },
+4: { name:'震', symbol:'☳', lines:[0,0,1], element:'雷' },
+5: { name:'巽', symbol:'☴', lines:[0,1,1], element:'風' },
+6: { name:'坎', symbol:'☵', lines:[0,1,0], element:'水' },
+7: { name:'艮', symbol:'☶', lines:[1,0,0], element:'山' },
+8: { name:'坤', symbol:'☷', lines:[0,0,0], element:'地' },
+};
+
+// 64卦：[上卦序, 下卦序] → 卦名
+const HEXAGRAMS = {
+'1,1':'乾為天','1,2':'天澤履','1,3':'天火同人','1,4':'天雷無妄',
+'1,5':'天風姤','1,6':'天水訟','1,7':'天山遯','1,8':'天地否',
+'2,1':'澤天夬','2,2':'兌為澤','2,3':'澤火革','2,4':'澤雷隨',
+'2,5':'澤風大過','2,6':'澤水困','2,7':'澤山咸','2,8':'澤地萃',
+'3,1':'火天大有','3,2':'火澤睽','3,3':'離為火','3,4':'火雷噬嗑',
+'3,5':'火風鼎','3,6':'火水未濟','3,7':'火山旅','3,8':'火地晉',
+'4,1':'雷天大壯','4,2':'雷澤歸妹','4,3':'雷火豐','4,4':'震為雷',
+'4,5':'雷風恒','4,6':'雷水解','4,7':'雷山小過','4,8':'雷地豫',
+'5,1':'風天小畜','5,2':'風澤中孚','5,3':'風火家人','5,4':'風雷益',
+'5,5':'巽為風','5,6':'風水渙','5,7':'風山漸','5,8':'風地觀',
+'6,1':'水天需','6,2':'水澤節','6,3':'水火既濟','6,4':'水雷屯',
+'6,5':'水風井','6,6':'坎為水','6,7':'水山蹇','6,8':'水地比',
+'7,1':'山天大畜','7,2':'山澤損','7,3':'山火賁','7,4':'山雷頤',
+'7,5':'山風蠱','7,6':'山水蒙','7,7':'艮為山','7,8':'山地剝',
+'8,1':'地天泰','8,2':'地澤臨','8,3':'地火明夷','8,4':'地雷復',
+'8,5':'地風升','8,6':'地水師','8,7':'地山謙','8,8':'坤為地',
+};
+
+// 爻辭庫（簡化版，含常見卦的關鍵爻）
+const YAO_CI = {
+'地天泰_3': '九三：無平不陂，無往不復，艱貞無咎，勿恤其孚，於食有福。',
+'地澤臨_3': '六三：甘臨，無攸利，既憂之，無咎。',
+'火雷噬嗑_6': '上九：何校滅耳，凶。',
+'地雷復_1': '初九：不遠復，無祇悔，元吉。',
+'乾為天_1': '初九：潛龍勿用。',
+'乾為天_2': '九二：見龍在田，利見大人。',
+'乾為天_3': '九三：君子終日乾乾，夕惕若，厲，無咎。',
+'乾為天_4': '九四：或躍在淵，無咎。',
+'乾為天_5': '九五：飛龍在天，利見大人。',
+'乾為天_6': '上九：亢龍有悔。',
+'坤為地_1': '初六：履霜，堅冰至。',
+'坤為地_6': '上六：龍戰于野，其血玄黃。',
+};
+
+// 卦象解讀資料庫
+const HEX_INTERPRETATION = {
+'地天泰': { trend:'up', summary:'泰：天地交泰，陰陽相通，萬物欣榮。', advice:'行情氣場正面，動能充足，波折後偏多收尾。' },
+'地澤臨': { trend:'up', summary:'臨：居高臨下，向上進取之象。', advice:'溫和上漲，有支撐，宜持倉觀望。' },
+'乾為天': { trend:'up', summary:'乾：純陽剛健，飛龍在天。', advice:'多頭氣勢強，但高位需注意過熱。' },
+'火雷噬嗑': { trend:'down', summary:'噬嗑：咬合有阻，需克服障礙。', advice:'短期有壓力，震盪偏弱，不宜追高。' },
+'地雷復': { trend:'neutral', summary:'復：一陽來復，陽氣始生。', advice:'底部支撐存在，但尚在積蓄，方向待確認。' },
+'坤為地': { trend:'down', summary:'坤：純陰柔順，主靜不主動。', advice:'行情偏弱，宜觀望，不宜躁進。' },
+'天地否': { trend:'down', summary:'否：天地不交，閉塞不通。', advice:'行情受阻，趨勢偏空，謹慎為上。' },
+'水火既濟': { trend:'neutral', summary:'既濟：事已成，然需防過渡。', advice:'短線達到目標，但後市需謹慎轉折。' },
+'火水未濟': { trend:'neutral', summary:'未濟：事未成，仍在過渡中。', advice:'方向尚未確立，等待更明確訊號。' },
+'雷天大壯': { trend:'up', summary:'大壯：雷天齊動，陽氣大盛。', advice:'強勁上漲動能，但剛強過猛需注意回調。' },
+'澤天夬': { trend:'up', summary:'夬：決斷，陽盛決陰，突破。', advice:'有效突破在即，但突破後需確認量能。' },
+'山地剝': { trend:'down', summary:'剝：剝落，陰盛剝陽。', advice:'下跌趨勢明顯，宜減倉避險。' },
+'地火明夷': { trend:'down', summary:'明夷：光明受傷，潛伏待機。', advice:'行情壓抑，暫時蟄伏，等待轉機。' },
+'雷地豫': { trend:'up', summary:'豫：雷出地上，和樂預備。', advice:'氣氛樂觀，短線偏多，但需防虛漲。' },
+'風雷益': { trend:'up', summary:'益：損上益下，獲益之象。', advice:'有利可圖，持倉者可續抱。' },
+'澤雷隨': { trend:'up', summary:'隨：隨時而動，順勢而為。', advice:'跟隨趨勢，順勢操作，不可逆勢。' },
+'風地觀': { trend:'neutral', summary:'觀：觀察時機，靜觀其變。', advice:'宜觀察為主，不宜倉促行動。' },
+'水雷屯': { trend:'neutral', summary:'屯：初生艱難，萬物始萌。', advice:'盤整蓄勢，方向待明，耐心等待。' },
+};
+
+function digitSum(str) {
+return str.replace(/\D/g,'').split('').reduce((a,c) => a + parseInt(c), 0);
+}
+
+function mod8(n) {
+const r = n % 8;
+return r === 0 ? 8 : r;
+}
+
+function mod6(n) {
+const r = n % 6;
+return r === 0 ? 6 : r;
+}
+
+function flipLine(line) { return line === 1 ? 0 : 1; }
+
+function buildHexLines(upper, lower) {
+return [...lower.lines, ...upper.lines];
+}
+
+function renderHexLines(lines, movingYao, isChanged) {
+let html = '<div class="hex-lines">';
+for (let i = 0; i < 6; i++) {
+const line = isChanged && (i+1) === movingYao ? flipLine(lines[i]) : lines[i];
+const isMoving = !isChanged && (i+1) === movingYao;
+const color = isMoving ? 'var(--accent)' : (isChanged ? 'var(--muted)' : 'var(--accent)');
+if (line === 1) {
+html += `<div class="yao yang" style="background:${color}"></div>`;
+} else {
+html += `<div class="yao-pair"><div class="yao yin-left" style="background:${color}"></div><div class="yao yin-right" style="background:${color}"></div></div>`;
+}
+}
+html += '</div>';
+return html;
+}
+
+function getChangedTrigrams(upper, lower, movingYao) {
+let newLines = buildHexLines(upper, lower);
+newLines[movingYao - 1] = flipLine(newLines[movingYao - 1]);
+const newLower = { lines: newLines.slice(0,3) };
+const newUpper = { lines: newLines.slice(3,6) };
+
+let changedUpperKey = null, changedLowerKey = null;
+for (const [k, t] of Object.entries(TRIGRAMS)) {
+if (t.lines.join() === newUpper.lines.join()) changedUpperKey = parseInt(k);
+if (t.lines.join() === newLower.lines.join()) changedLowerKey = parseInt(k);
+}
+return { changedUpperKey, changedLowerKey };
+}
+
+// 個人數字選取
+let selectedPersonalNum = null;
+
+function initNumSlots() {
+const container = document.getElementById('numSlots');
+container.innerHTML = '';
+for (let i = 1; i <= 10; i++) {
+const btn = document.createElement('button');
+btn.className = 'num-slot';
+btn.textContent = i;
+btn.onclick = () => selectNum(i);
+btn.id = `slot_${i}`;
+container.appendChild(btn);
+}
+}
+
+function selectNum(n) {
+selectedPersonalNum = n;
+for (let i = 1; i <= 10; i++) {
+document.getElementById(`slot_${i}`).className = 'num-slot' + (i === n ? ' selected' : '');
+}
+}
+
+function rollDice() {
+const btn = document.getElementById('diceBtn');
+btn.classList.add('rolling');
+setTimeout(() => btn.classList.remove('rolling'), 400);
+
+// 先快速閃爍幾次再定格
+let flashes = 0;
+const interval = setInterval(() => {
+const temp = Math.ceil(Math.random() * 10);
+selectNum(temp);
+flashes++;
+if (flashes >= 8) {
+clearInterval(interval);
+const final = Math.ceil(Math.random() * 10);
+selectNum(final);
+}
+}, 60);
+}
+
+function divinate() {
+const rawCode = document.getElementById('stockCode').value.trim();
+const month = parseInt(document.getElementById('month').value);
+const day = parseInt(document.getElementById('day').value);
+
+if (!rawCode || isNaN(month) || isNaN(day)) {
+alert('請填寫完整資訊');
+return;
+}
+
+if (!selectedPersonalNum) {
+alert('請選擇或搖出個人數字（1–10）');
+return;
+}
+
+const pNum = selectedPersonalNum;
+const digits = rawCode.replace(/\D/g,'');
+const digitSumVal = digits.split('').reduce((a,c) => a + parseInt(c), 0);
+
+const upperNum = digitSumVal + month + pNum;
+const lowerNum = digitSumVal + day + pNum;
+const movingNum = digitSumVal + month + day + pNum;
+
+const upperKey = mod8(upperNum);
+const lowerKey = mod8(lowerNum);
+const movingYao = mod6(movingNum);
+
+const upper = TRIGRAMS[upperKey];
+const lower = TRIGRAMS[lowerKey];
+const hexName = HEXAGRAMS[`${upperKey},${lowerKey}`] || '未知卦';
+
+const { changedUpperKey, changedLowerKey } = getChangedTrigrams(upper, lower, movingYao);
+const changedUpper = TRIGRAMS[changedUpperKey];
+const changedLower = TRIGRAMS[changedLowerKey];
+const changedHexName = HEXAGRAMS[`${changedUpperKey},${changedLowerKey}`] || '未知卦';
+
+// 顯示計算過程
+const digitDisplay = digits.split('').join('+');
+document.getElementById('calcRows').innerHTML = `
+<div class="calc-row"><span class="calc-label">代碼拆位（${rawCode}）</span><span class="calc-val">${digitDisplay} = ${digitSumVal}</span></div>
+<div class="calc-row"><span class="calc-label">個人數字</span><span class="calc-val">${pNum}</span></div>
+<div class="calc-row"><span class="calc-label">上卦數（代碼+月${month}+人${pNum}）</span><span class="calc-val">${digitSumVal}+${month}+${pNum} = ${upperNum} → 餘${upperKey} → ${upper.symbol} ${upper.name}</span></div>
+<div class="calc-row"><span class="calc-label">下卦數（代碼+日${day}+人${pNum}）</span><span class="calc-val">${digitSumVal}+${day}+${pNum} = ${lowerNum} → 餘${lowerKey} → ${lower.symbol} ${lower.name}</span></div>
+<div class="calc-row"><span class="calc-label">動爻（總和）</span><span class="calc-val">${digitSumVal}+${month}+${day}+${pNum} = ${movingNum} → 餘${movingYao} → 第 ${movingYao} 爻</span></div>
+`;
+
+// 顯示卦象
+const baseLines = buildHexLines(upper, lower);
+document.getElementById('hexDisplay').innerHTML = `
+<div class="hex-box">
+<div class="hex-label">本卦</div>
+${renderHexLines(baseLines, movingYao, false)}
+<div class="hex-name">${hexName}</div>
+<div class="hex-sub">${upper.symbol}${upper.name} / ${lower.symbol}${lower.name}</div>
+</div>
+<div style="display:flex;align-items:center;color:var(--muted);font-size:18px;">→</div>
+<div class="hex-box change">
+<div class="hex-label">變卦</div>
+${renderHexLines(baseLines, movingYao, true)}
+<div class="hex-name">${changedHexName}</div>
+<div class="hex-sub">${changedUpper.symbol}${changedUpper.name} / ${changedLower.symbol}${changedLower.name}</div>
+</div>
+`;
+
+document.getElementById('movingBadge').textContent = `第 ${movingYao} 爻動`;
+
+// 爻辭
+const yaoCiKey = `${hexName}_${movingYao}`;
+const yaoCiText = YAO_CI[yaoCiKey] || `${hexName} · 第${movingYao}爻：此爻主動，陰陽相交，需觀本卦與變卦之象綜合研判。`;
+document.getElementById('yaoCi').textContent = yaoCiText;
+
+// 判斷趨勢（以變卦為主，本卦輔助）
+const changeInterp = HEX_INTERPRETATION[changedHexName];
+const baseInterp = HEX_INTERPRETATION[hexName];
+const interp = changeInterp || baseInterp || { trend:'neutral', summary:'此卦需深入研判。', advice:'建議搭配技術面觀察。' };
+
+const icons = { up:'▲', down:'▼', neutral:'◆' };
+const titles = { up:'今日偏多，可留意買點', down:'今日偏空，謹慎操作', neutral:'今日震盪，觀望為宜' };
+
+const box = document.getElementById('verdictBox');
+box.className = `verdict ${interp.trend}`;
+document.getElementById('verdictIcon').textContent = icons[interp.trend];
+document.getElementById('verdictTitle').textContent = titles[interp.trend];
+document.getElementById('verdictDesc').textContent = `本卦 ${hexName}：${baseInterp?.summary || ''}\n變卦 ${changedHexName}：${interp.summary}\n\n${interp.advice}`;
+
+document.getElementById('result').style.display = 'block';
+document.getElementById('result').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+// 預設今日日期
+const now = new Date();
+document.getElementById('month').value = now.getMonth() + 1;
+document.getElementById('day').value = now.getDate();
+document.getElementById('stockCode').value = '00981';
+initNumSlots();
+</script>
+
+</body>
+</html>
